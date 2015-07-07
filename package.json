@@ -1,0 +1,46 @@
+{
+  "name": "angular-state-view",
+  "version": "0.9.0",
+  "description": "An AngularJS state-based router",
+  "main": "dist/state-view.js",
+  "scripts": {
+    "watch": "gulp watch",
+    "test": "./node_modules/karma/bin/karma start tests/karma.conf.js --single-run --browsers PhantomJS"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henrytseng/angular-state-view.git"
+  },
+  "author": "Henry Tseng <contact@henrytseng.com> (http://www.henrytseng.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/henrytseng/angular-state-view/issues"
+  },
+  "homepage": "https://github.com/henrytseng/angular-state-view#readme",
+  "devDependencies": {
+    "angular": "^1.4.1",
+    "angular-mocks": "^1.4.1",
+    "browserify": "^10.2.4",
+    "browserify-ngannotate": "^1.0.1",
+    "gulp": "^3.9.0",
+    "gulp-if": "^1.2.5",
+    "gulp-jshint": "^1.11.2",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-streamify": "0.0.5",
+    "gulp-uglify": "^1.2.0",
+    "gulp-watch": "^4.2.4",
+    "jasmine-core": "^2.3.4",
+    "jshint-stylish": "^2.0.1",
+    "karma": "^0.12.37",
+    "karma-jasmine": "^0.3.6",
+    "karma-phantomjs-launcher": "^0.2.0",
+    "karma-spec-reporter": "0.0.19",
+    "phantomjs": "^1.9.17",
+    "run-sequence": "^1.1.1",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {}
+}
