@@ -7,10 +7,11 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
   module.exports = 'angular-state-view';
 }
 
-// Polyfill
-require('./utils/object');
-require('./utils/process');
-require('./utils/function');
+// Assume polyfill used in StateRouter exists
 
 // Instantiate module
-angular.module('angular-state-view', []);
+angular.module('angular-state-view', ['angular-state-router'])
+
+  .factory('$viewManager', require('./services/view-manager'))
+
+  .directive('state-view', require('./directives/state-view'));
