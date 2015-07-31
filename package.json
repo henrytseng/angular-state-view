@@ -1,6 +1,6 @@
 {
   "name": "angular-state-view",
-  "version": "0.9.0",
+  "version": "1.0.1",
   "description": "An AngularJS state-based router",
   "main": "dist/state-view.js",
   "scripts": {
