@@ -14,4 +14,4 @@ angular.module('angular-state-view', ['angular-state-router'])
 
   .factory('$viewManager', require('./services/view-manager'))
 
-  .directive('state-view', require('./directives/state-view'));
+  .directive('sview', require('./directives/state-view'));
