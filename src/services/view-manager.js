@@ -14,28 +14,6 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
   var _activeList = [];
 
   /**
-   * String based template provider
-   */
-  var _StringTemplateProvider = function(template, view) {
-    var deferred = $q.defer();
-
-    // Immediately resolve
-    deferred.resolve();
-
-    // Render
-    deferred.promise.then(function() {
-      view.render(template);
-    });
-
-    return deferred.promise;
-  };
-
-  // Map of providers
-  var _providerMap = {
-    'string': _StringTemplateProvider
-  };
-
-  /**
    * A promise to fulfill view template translation
    * 
    * @param  {String} id       Unique identifier for view
@@ -47,10 +25,17 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
     var deferred;
 
     // Acceptable
-    if(_providerMap[typeof template]) {
-      var provider = _providerMap[typeof template];
-      return provider(template, view);
-    
+    if(typeof template !== 'undefined' && template !== null) {
+      var result = (angular.isFunction(template)) ? $injector.invoke(template) : template;
+      
+      // Ensure promise
+      result = $q.when(result);
+
+      // Render
+      return result.then(function(res) {
+        view.render(res);
+      });
+
     // Not accepted, empty resolution
     } else {
       deferred = $q.defer();
