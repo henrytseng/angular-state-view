@@ -9,8 +9,10 @@ module.exports = ['$state', '$viewManager', '$templateCache', '$compile', '$log'
     },
     link: function(scope, element, attrs) {
 
+      var origin = element.html();
+
       // Create view
-      var _view = $viewManager.create(attrs.id, element, {
+      var _view = $viewManager.create(attrs.id, {
 
         // Element
         $element: element,
@@ -20,11 +22,14 @@ module.exports = ['$state', '$viewManager', '$templateCache', '$compile', '$log'
           $log.log('render', data);
 
           var renderer = $compile(data);
-
           element.html(renderer(scope.$parent));
-        }
+        },
 
+        reset: function() {
+          element.html(origin);
+        }
       });
+
 
       // Destroy
       element.on('$destroy', function() {
