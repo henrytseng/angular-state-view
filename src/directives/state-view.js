@@ -9,8 +9,6 @@ module.exports = ['$state', '$viewManager', '$templateCache', '$compile', '$log'
     },
     link: function(scope, element, attrs) {
 
-      var origin = element.html();
-
       // Create view
       var _view = $viewManager.create(attrs.id, {
 
@@ -19,21 +17,17 @@ module.exports = ['$state', '$viewManager', '$templateCache', '$compile', '$log'
 
         // Render
         render: function(data) {
-          $log.log('render', data);
-
           var renderer = $compile(data);
           element.html(renderer(scope.$parent));
         },
 
         reset: function() {
-          element.html(origin);
+          element.html('');
         }
       });
 
-
       // Destroy
       element.on('$destroy', function() {
-        $log.log('destroy');
         _view.destroy();
       });
     }

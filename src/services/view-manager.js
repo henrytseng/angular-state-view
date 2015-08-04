@@ -50,7 +50,7 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
       } else {
 
         // Ensure promise
-        promise = $q.when(template).then(function(res) {
+        promise = $q.when('<ng-include src="\''+template+'\'"></ng-include>').then(function(res) {
           view.render(res);
         });
       }

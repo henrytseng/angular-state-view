@@ -87,7 +87,7 @@ describe('$viewManager', function() {
         return {
           name: 'blog.entries',
           templates: {
-            stringTemplate: 'Lorem ipsum'
+            stringTemplate: '/lorem.html'
           }
         };
       };
@@ -97,7 +97,7 @@ describe('$viewManager', function() {
           render: jasmine.createSpy('renderStringTemplate')
         });
         $viewManager.update(function() {
-          expect(view.render).toHaveBeenCalledWith('Lorem ipsum');
+          expect(view.render).toHaveBeenCalledWith('<ng-include src="\'/lorem.html\'"></ng-include>');
           done();
         });
         
@@ -171,41 +171,18 @@ describe('$viewManager', function() {
         return {
           name: 'blog.entries',
           templates: {
-            stringTemplate: 'Vitae dicta sunt explicabo',
-            nullTemplate: null,
-            boolTemplate: false,
-            numberTemplate: 1241,
-            objectTemplate: {
-              lorem: 'ipsum',
-              sed: 'ut'
-            }
+            nullTemplate: null
           }
         };
       };
 
       angular.mock.inject(function($viewManager, $rootScope) {
-        var stringView = $viewManager.create('stringTemplate', {
-          render: jasmine.createSpy('renderStringTemplate')
-        });
         var nullView = $viewManager.create('nullTemplate', {
           render: jasmine.createSpy('renderNullTemplate')
         });
-        var boolView = $viewManager.create('boolTemplate', {
-          render: jasmine.createSpy('renderBoolTemplate')
-        });
-        var numberView = $viewManager.create('numberTemplate', {
-          render: jasmine.createSpy('renderNumberTemplate')
-        });
-        var objectView = $viewManager.create('objectTemplate', {
-          render: jasmine.createSpy('renderObjectTemplate')
-        });
 
         $viewManager.update(function() {
-          expect(stringView.render).toHaveBeenCalled();
           expect(nullView.render).not.toHaveBeenCalled();
-          expect(boolView.render).toHaveBeenCalled();
-          expect(numberView.render).toHaveBeenCalled();
-          expect(objectView.render).toHaveBeenCalled();
           done();
         });
 
@@ -221,7 +198,7 @@ describe('$viewManager', function() {
         return {
           name: 'blog.entries',
           templates: {
-            presentTemplate: 'Sunt explicabo'
+            presentTemplate: '/explicabo.html'
           }
         };
       };
@@ -235,7 +212,7 @@ describe('$viewManager', function() {
         });
 
         $viewManager.update(function() {
-          expect(presentView.render).toHaveBeenCalledWith('Sunt explicabo');
+          expect(presentView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
           expect(irrelevantView.render).not.toHaveBeenCalled();
           done();
         });
@@ -252,8 +229,8 @@ describe('$viewManager', function() {
         return {
           name: 'blog.entries',
           templates: {
-            presentTemplate: 'Sunt explicabo',
-            missingTemplate: 'Vitae dicta'
+            presentTemplate: '/explicabo.html',
+            missingTemplate: '/dicta.html'
           }
         };
       };
@@ -264,7 +241,7 @@ describe('$viewManager', function() {
         });
 
         $viewManager.update(function() {
-          expect(presentView.render).toHaveBeenCalledWith('Sunt explicabo');
+          expect(presentView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
           done();
         });
 
@@ -280,7 +257,7 @@ describe('$viewManager', function() {
         return {
           name: 'blog.entries',
           templates: {
-            myTemplate: 'Sunt explicabo'
+            myTemplate: '/explicabo.html'
           }
         };
       };
@@ -297,13 +274,13 @@ describe('$viewManager', function() {
 
         $viewManager.update(function() {
           expect(myView.reset).not.toHaveBeenCalled();
-          expect(myView.render).toHaveBeenCalledWith('Sunt explicabo');
+          expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
           expect(irrelevantView.reset).not.toHaveBeenCalled();
           expect(irrelevantView.render).not.toHaveBeenCalled();
 
           $viewManager.update(function() {
             expect(myView.reset).toHaveBeenCalled();
-            expect(myView.render).toHaveBeenCalledWith('Sunt explicabo');
+            expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
             expect(irrelevantView.reset).not.toHaveBeenCalled();
             expect(irrelevantView.render).not.toHaveBeenCalled();
             done();
