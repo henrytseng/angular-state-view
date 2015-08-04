@@ -1,7 +1,7 @@
 {
   "name": "angular-state-view",
-  "version": "1.0.2",
-  "description": "An AngularJS state-based router",
+  "version": "1.0.3",
+  "description": "Provides nested view management with template support.",
   "main": "dist/state-view.js",
   "scripts": {
     "watch": "gulp watch",
