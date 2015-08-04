@@ -1,31 +1,36 @@
 'use strict';
 
-module.exports = ['$state', '$viewManager', '$templateCache', '$compile', function ($state, $viewManager, $templateCache, $compile) {
+module.exports = ['$state', '$viewManager', '$templateCache', '$compile', '$log', function ($state, $viewManager, $templateCache, $compile, $log) {
 
-    return {
-      restrict: 'EA',
-      scope: {
+  return {
+    restrict: 'EA',
+    scope: {
 
-      },
-      link: function(scope, element, attrs) {
-        // Create view
-        var _view = $viewManager.create(attrs.id, element, {
+    },
+    link: function(scope, element, attrs) {
 
-          // Element
-          $element: element,
+      // Create view
+      var _view = $viewManager.create(attrs.id, element, {
 
-          // Render
-          render: function(data) {
-            var renderer = $compile(data);
-            element.html(renderer(scope.$parent));
-          }
+        // Element
+        $element: element,
 
-        });
+        // Render
+        render: function(data) {
+          $log.log('render', data);
 
-        // Destroy
-        element.on('$destroy', function() {
-          _view.destroy();
-        });
-      }
-    };
-  }];
+          var renderer = $compile(data);
+
+          element.html(renderer(scope.$parent));
+        }
+
+      });
+
+      // Destroy
+      element.on('$destroy', function() {
+        $log.log('destroy');
+        _view.destroy();
+      });
+    }
+  };
+}];

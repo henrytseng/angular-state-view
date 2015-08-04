@@ -3,6 +3,7 @@
 describe('$viewManager', function() {
   var _fakeApp;
   var _stateRouterHelper = require('../../../node_modules/angular-state-router/tests/helpers/state-router.helper');
+  var process = require('../../../node_modules/angular-state-router/src/utils/process');
 
   beforeEach(function() {
     _fakeApp = angular.module('fakeApp', function() {});
@@ -124,8 +125,11 @@ describe('$viewManager', function() {
           expect(view.render).toHaveBeenCalledWith('Sed ut - '+$locale.id);
           done();
         });
-        
-        $rootScope.$apply();
+
+        // Resolve
+        process.nextTick(function() {        
+          $rootScope.$apply();
+        });
       });
     });
 
@@ -153,9 +157,12 @@ describe('$viewManager', function() {
         });
 
         // Resolve
-        deferred.resolve('Dolor ipsum');
+        process.nextTick(function() {
+          deferred.resolve('Dolor ipsum');
 
-        $rootScope.$apply();
+          $rootScope.$apply();
+        });
+
       });
     });
 
@@ -202,7 +209,10 @@ describe('$viewManager', function() {
           done();
         });
 
-        $rootScope.$apply();
+        // Resolve
+        process.nextTick(function() {        
+          $rootScope.$apply();
+        });
       });
     });
 
@@ -230,7 +240,10 @@ describe('$viewManager', function() {
           done();
         });
 
-        $rootScope.$apply();
+        // Resolve
+        process.nextTick(function() {        
+          $rootScope.$apply();
+        });
       });
     });
 
@@ -255,7 +268,10 @@ describe('$viewManager', function() {
           done();
         });
 
-        $rootScope.$apply();
+        // Resolve
+        process.nextTick(function() {        
+          $rootScope.$apply();
+        });
       });
     });
 
@@ -293,9 +309,16 @@ describe('$viewManager', function() {
             done();
           });
 
+          // Resolve
+          process.nextTick(function() {
+            $rootScope.$apply();
+          });
         });
 
-        $rootScope.$apply();
+        // Resolve
+        process.nextTick(function() {        
+          $rootScope.$apply();
+        });
       });
     });
 

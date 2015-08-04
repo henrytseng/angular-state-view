@@ -4,6 +4,7 @@
 
 var EventEmitter = require('events').EventEmitter;
 var View = require('../view/view');
+var process = require('../../node_modules/angular-state-router/src/utils/process');
 
 module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
 
@@ -21,33 +22,56 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
    * @param  {View}   view     A View associated with the id
    * @return {Promise}         A $q.defer().promise
    */
-  var _createProvider = function(id, template, view) {
-    var deferred;
+  var _promiseTemplate = function(id, template, view) {
+    var promise;
 
-    // Acceptable
+    // Defined template
     if(typeof template !== 'undefined' && template !== null) {
-      var result = (angular.isFunction(template)) ? $injector.invoke(template) : template;
-      
-      // Ensure promise
-      result = $q.when(result);
 
-      // Render
-      return result.then(function(res) {
-        view.render(res);
-      });
+      // Functional
+      if(angular.isFunction(template)) {
+        promise = $q(function(resolve, reject) {
 
-    // Not accepted, empty resolution
+          // Execute asynchronously
+          process.nextTick(function() {
+
+            // Ensure promise
+            $q.when($injector.invoke(template)).then(
+              function(res) {
+                view.render(res);
+                resolve(res);
+              }
+            );
+
+          });
+        });
+
+      // Other
+      } else {
+
+        // Ensure promise
+        promise = $q.when(template).then(function(res) {
+          view.render(res);
+        });
+      }
+
+    // Empty
     } else {
-      deferred = $q.defer();
-      deferred.resolve();
-      return deferred.promise;
+      var deferEmpty = $q.defer();
+
+      // Resolve
+      deferEmpty.resolve();
+
+      promise = deferEmpty.promise;
     }
+
+    return promise;
   };
 
   /**
    * Update rendered views
    *
-   * @param {Function} callback A callback, function(err)
+   * @param {Function} callback A completion callback, function(err)
    */
   var _update = function(callback) {
     // Reset
@@ -75,11 +99,11 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
 
         // Map to provider
         .map(function(id) {
-          return _createProvider(id, templateHash[id], _viewHash[id]);
+          return _promiseTemplate(id, templateHash[id], _viewHash[id]);
         }))
         .then(function() {
           _self.emit('update:render');
-          callback();
+          process.nextTick(callback);
 
         }, function(err) {
           _self.emit('error:render', err);
@@ -89,7 +113,7 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
     // Empty
     } else {
       _self.emit('update:render');
-      callback();
+      process.nextTick(callback);
     }
   };
 
@@ -134,15 +158,15 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
   /**
    * A factory method to create a View instance
    * 
-   * @param  {String} id    Unique identifier for view
-   * @param  {Object} child A data object used to extend abstract methods
-   * @return {View}         A View entitity
+   * @param  {String} id   Unique identifier for view
+   * @param  {Object} data A data object used to extend abstract methods
+   * @return {View}        A View entitity
    */
-  _self.create = function(id, child) {
-    child = child || {};
+  _self.create = function(id, data) {
+    data = data || {};
 
     // Create
-    var view = View(id, child);
+    var view = View(id, data);
 
     // Register
     return _register(id, view);
