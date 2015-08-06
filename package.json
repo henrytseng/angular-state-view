@@ -44,6 +44,6 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "angular-state-router": "^1.7.4"
+    "angular-state-router": "^1.7.6"
   }
 }
