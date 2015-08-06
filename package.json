@@ -1,6 +1,6 @@
 {
   "name": "angular-state-view",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Provides nested view management with template support.",
   "main": "dist/state-view.js",
   "scripts": {

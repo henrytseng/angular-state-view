@@ -78,6 +78,18 @@ During the configuration of StateRouter utilize `templates` to associate a view 
 
 	  });
 
+Now in the view you can utilize the view `id` defined in the templates.  
+
+	<body>
+		<div class="wrapper">
+			<sview id="sideBar"></sview>
+			<sview id="greetingPopOver"></sview>
+		</div>
+		<div class="popover">
+			<sview id="calloutBlock"></sview>
+		</div>
+	</body>
+
 
 
 Events
