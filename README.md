@@ -78,7 +78,7 @@ During the configuration of StateRouter utilize `templates` to associate a view 
 
 	  });
 
-Now in the view you can utilize the view `id` defined in the templates.  
+Now in the view you can utilize the view `id` defined in the templates by using the `sview` element.  
 
 	<body>
 		<div class="wrapper">
