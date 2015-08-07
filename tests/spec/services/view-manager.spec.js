@@ -75,7 +75,7 @@ describe('$viewManager', function() {
         var view = $viewManager.create('irrelevant', {
           render: jasmine.createSpy('renderIrrelevant')
         });
-        $viewManager.update(function() {
+        $viewManager.$update(function() {
           expect(view.render).not.toHaveBeenCalled();
           done();
         });
@@ -96,7 +96,7 @@ describe('$viewManager', function() {
         var view = $viewManager.create('stringTemplate', {
           render: jasmine.createSpy('renderStringTemplate')
         });
-        $viewManager.update(function() {
+        $viewManager.$update(function() {
           expect(view.render).toHaveBeenCalledWith('<ng-include src="\'/lorem.html\'"></ng-include>');
           done();
         });
@@ -121,7 +121,7 @@ describe('$viewManager', function() {
         var view = $viewManager.create('functionTemplate', {
           render: jasmine.createSpy('renderFunctionTemplate')
         });
-        $viewManager.update(function() {
+        $viewManager.$update(function() {
           expect(view.render).toHaveBeenCalledWith('Sed ut - '+$locale.id);
           done();
         });
@@ -151,7 +151,7 @@ describe('$viewManager', function() {
         var view = $viewManager.create('deferredTemplate', {
           render: jasmine.createSpy('renderDeferredTemplate')
         });
-        $viewManager.update(function() {
+        $viewManager.$update(function() {
           expect(view.render).toHaveBeenCalledWith('Dolor ipsum');
           done();
         });
@@ -181,7 +181,7 @@ describe('$viewManager', function() {
           render: jasmine.createSpy('renderNullTemplate')
         });
 
-        $viewManager.update(function() {
+        $viewManager.$update(function() {
           expect(nullView.render).not.toHaveBeenCalled();
           done();
         });
@@ -211,7 +211,7 @@ describe('$viewManager', function() {
           render: jasmine.createSpy('renderIrrelevantTemplate')
         });
 
-        $viewManager.update(function() {
+        $viewManager.$update(function() {
           expect(presentView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
           expect(irrelevantView.render).not.toHaveBeenCalled();
           done();
@@ -240,7 +240,7 @@ describe('$viewManager', function() {
           render: jasmine.createSpy('renderPresentTemplate')
         });
 
-        $viewManager.update(function() {
+        $viewManager.$update(function() {
           expect(presentView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
           done();
         });
@@ -253,14 +253,7 @@ describe('$viewManager', function() {
     });
 
     it('Should reset last active views', function(done) {
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: {
-            myTemplate: '/explicabo.html'
-          }
-        };
-      };
+      _stateRouterHelper.$service.current = function() { return null; };
 
       angular.mock.inject(function($viewManager, $rootScope) {
         var myView = $viewManager.create('myTemplate', {
@@ -272,13 +265,22 @@ describe('$viewManager', function() {
           render: jasmine.createSpy('renderIrrelevantTemplate')
         });
 
-        $viewManager.update(function() {
+        _stateRouterHelper.$service.current = function() {
+          return {
+            name: 'blog.entries',
+            templates: {
+              myTemplate: '/explicabo.html'
+            }
+          };
+        };
+
+        $viewManager.$update(function() {
           expect(myView.reset).not.toHaveBeenCalled();
           expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
           expect(irrelevantView.reset).not.toHaveBeenCalled();
           expect(irrelevantView.render).not.toHaveBeenCalled();
 
-          $viewManager.update(function() {
+          $viewManager.$update(function() {
             expect(myView.reset).toHaveBeenCalled();
             expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
             expect(irrelevantView.reset).not.toHaveBeenCalled();

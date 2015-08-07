@@ -50,9 +50,10 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
       } else {
 
         // Ensure promise
-        promise = $q.when('<ng-include src="\''+template+'\'"></ng-include>').then(function(res) {
-          view.render(res);
-        });
+        promise = $q.when('<ng-include src="\''+template+'\'"></ng-include>')
+          .then(function(res) {
+            view.render(res);
+          });
       }
 
     // Empty
@@ -102,17 +103,14 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
           return _promiseTemplate(id, templateHash[id], _viewHash[id]);
         }))
         .then(function() {
-          _self.emit('update:render');
           process.nextTick(callback);
 
         }, function(err) {
-          _self.emit('error:render', err);
-          callback(err);
+          process.nextTick(angular.bind(null, callback, err));
         });
 
     // Empty
     } else {
-      _self.emit('update:render');
       process.nextTick(callback);
     }
   };
@@ -145,6 +143,14 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
 
     } else {
       _viewHash[id] = view;
+    }
+
+    // Check active views
+    var current = $state.current() || {};
+    var templateHash = current.templates || {};
+    if(!!templateHash[id] && !!_viewHash[id]) {
+      _activeList.push(_viewHash[id]);
+      _promiseTemplate(id, templateHash[id], _viewHash[id]);
     }
 
     // Implement destroy method
@@ -185,11 +191,19 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
   /**
    * Update
    */
-  _self.update = _update;
+  _self.$update = _update;
 
   // Register middleware layer
   $state.$use(function(request, next) {
-    _update(next);
+    _update(function(err) {
+      if(err) {
+        _self.emit('error:render', err);
+        return next(err);
+      }
+
+      _self.emit('update:render');
+      next();
+    });
   });
 
   return _self;

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = ['$state', '$viewManager', '$templateCache', '$compile', '$log', function ($state, $viewManager, $templateCache, $compile, $log) {
+module.exports = ['$state', '$viewManager', '$templateCache', '$compile', function ($state, $viewManager, $templateCache, $compile) {
 
   return {
     restrict: 'EA',
