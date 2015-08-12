@@ -6,7 +6,7 @@ var EventEmitter = require('events').EventEmitter;
 var View = require('../view/view');
 var process = require('../../node_modules/angular-state-router/src/utils/process');
 
-module.exports = ['$state', '$injector', '$q', '$log', function($state, $injector, $q, $log) {
+module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
 
   // Instance of EventEmitter
   var _self = new EventEmitter();
