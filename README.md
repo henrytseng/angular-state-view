@@ -5,7 +5,7 @@ StateView
 
 Provides nested view management with template support.  
 
-StateView is a modular component designed to be used with StateRouter, an AngularJS state-based router.  
+StateView is a modular component designed to be used with [StateRouter](https://www.npmjs.com/package/angular-state-router), an AngularJS state-based router.  
 
 
 
@@ -92,6 +92,36 @@ Now in the view you can utilize the view `id` defined in the templates by using 
 
 
 
+Controllers
+-----------
+
+Controllers can be instantiated on a view $scope during rendering by specifying a `controllers` Object
+
+
+	    $stateProvider
+
+	      // Define states
+	      .state('products', {
+	        url: '/',
+	        templates: {
+
+	          sideBar: '/sidebar.html'
+
+	        },
+	        
+	        controllers: {
+	        
+	        	sideBar: 'SideBarController'
+	        
+	        }
+	      });
+
+	  });
+
+Controllers must use the same view `id`.  
+
+
+
 Events
 ------
 
@@ -118,6 +148,7 @@ Event: 'error'
 * `request` *Object* Requested data `{ name: 'nextState', params: {} }`
 
 This event is emitted whenever an error occurs.  
+
 
 
 

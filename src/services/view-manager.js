@@ -6,67 +6,62 @@ var EventEmitter = require('events').EventEmitter;
 var View = require('../view/view');
 var process = require('../../node_modules/angular-state-router/src/utils/process');
 
-module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
+module.exports = ['$state', '$injector', '$q', '$log', function($state, $injector, $q, $log) {
 
   // Instance of EventEmitter
   var _self = new EventEmitter();
 
   var _viewHash = {};
-  var _activeList = [];
+  var _activeHash = {};
 
   /**
-   * A promise to fulfill view template translation
+   * Reset active views
    * 
-   * @param  {String} id       Unique identifier for view
-   * @param  {Mixed}  template A state defined template to render into the view
-   * @param  {View}   view     A View associated with the id
-   * @return {Promise}         A $q.defer().promise
+   * @return {Promise} A promise fulfilled when currently active views are reset
    */
-  var _promiseTemplate = function(id, template, view) {
-    var promise;
+  var _resetActive = function() {
+    // Reset views
+    var resetPromised = {};
+    angular.forEach(_activeHash, function(view, id) {
+      resetPromised[id] = $q.when(view.reset());
+    });
+    _activeHash = {};
 
-    // Defined template
-    if(typeof template !== 'undefined' && template !== null) {
+    return $q.all(resetPromised);
+  };
 
-      // Functional
-      if(angular.isFunction(template)) {
-        promise = $q(function(resolve, reject) {
+  /**
+   * Get templates
+   * 
+   * @param  {Mixed}   data Template data, String src to include or Function invocation
+   * @return {Promise}      A promise fulfilled when templates retireved
+   */
+  var _getTemplate = function(data) {
+    var template = angular.isString(data) ? '<ng-include src="\''+data+'\'"></ng-include>' : $injector.invoke(data);
+    return $q.when(template);
+  };
 
-          // Execute asynchronously
-          process.nextTick(function() {
+  /**
+   * Render a view
+   * 
+   * @param  {String}  id     Unique identifier for view
+   * @param  {View}    view   A view instance
+   * @param  {Mixed}   data   Template data, String src to include or Function invocation
+   * @return {Promise}        A promise fulfilled when currently active view is rendered
+   */
+  var _renderView = function(id, view, data, controller) {
+    return _getTemplate(data).then(function(template) {
 
-            // Ensure promise
-            $q.when($injector.invoke(template)).then(
-              function(res) {
-                view.render(res);
-                resolve(res);
-              }
-            );
+      // Controller
+      if(controller) {
+        var current = $state.current();
+        return view.render(template, controller, current.locals);
 
-          });
-        });
-
-      // Other
+      // Template only
       } else {
-
-        // Ensure promise
-        promise = $q.when('<ng-include src="\''+template+'\'"></ng-include>')
-          .then(function(res) {
-            view.render(res);
-          });
+        return view.render(template);
       }
-
-    // Empty
-    } else {
-      var deferEmpty = $q.defer();
-
-      // Resolve
-      deferEmpty.resolve();
-
-      promise = deferEmpty.promise;
-    }
-
-    return promise;
+    });
   };
 
   /**
@@ -75,41 +70,39 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
    * @param {Function} callback A completion callback, function(err)
    */
   var _update = function(callback) {
-    // Reset
-    _activeList.forEach(function(view) {
-      view.reset();
-    });
+    // Activate current
+    var current = $state.current();
 
-    // Current
-    var current = $state.current() || {};
-    var templateHash = current.templates || {};
-    var templateList = (Object.keys(templateHash) || [])
-      .filter(function(id) {
-        return !!_viewHash[id];
-      });
+    if(current) {
 
-    // Active views
-    _activeList = templateList
-      .map(function(id) {
-        return _viewHash[id];
-      });
+      // Reset
+      _resetActive().then(function() {
 
-    // Render execution
-    if(!!templateList.length) {
-      $q.all(templateList
+        // Render
+        var viewsPromised = {};
+        var templates = current.templates || {};
+        var controllers = current.controllers || {};
+        angular.forEach(templates, function(template, id) {
+          if(_viewHash[id]) {
+            var view = _viewHash[id];
+            var controller = controllers[id];
+            viewsPromised[id] = _renderView(id, view, template, controller);
+            _activeHash[id] = view;
+          }
+        });
 
-        // Map to provider
-        .map(function(id) {
-          return _promiseTemplate(id, templateHash[id], _viewHash[id]);
-        }))
-        .then(function() {
+        $q.all(viewsPromised).then(function(views) {
           process.nextTick(callback);
 
         }, function(err) {
           process.nextTick(angular.bind(null, callback, err));
         });
 
-    // Empty
+      }, function(err) {
+        process.nextTick(angular.bind(null, callback, err));
+      });
+
+    // None
     } else {
       process.nextTick(callback);
     }
@@ -141,16 +134,17 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
     } else if(_viewHash[id]) {
       throw new Error('View requires a unique id');
 
+    // Add
     } else {
       _viewHash[id] = view;
     }
 
-    // Check active views
+    // Check if view is currently active
     var current = $state.current() || {};
-    var templateHash = current.templates || {};
-    if(!!templateHash[id] && !!_viewHash[id]) {
-      _activeList.push(_viewHash[id]);
-      _promiseTemplate(id, templateHash[id], _viewHash[id]);
+    var templates = current.templates || {};
+    var controllers = current.controllers || {};
+    if(!!templates[id]) {
+      _renderView(id, view, templates[id], controllers[id]);
     }
 
     // Implement destroy method

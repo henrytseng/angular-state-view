@@ -12,7 +12,9 @@ describe('$viewManager', function() {
     _stateRouterHelper.factory(_fakeApp).reset();
   });
 
-  beforeEach(angular.mock.module('angular-state-view', 'fakeApp'));
+  beforeEach(function() {
+    angular.mock.module('angular-state-view', 'fakeApp');
+  });
 
   describe('#create', function() {
 
@@ -71,14 +73,17 @@ describe('$viewManager', function() {
         };
       };
 
-      angular.mock.inject(function($viewManager) {
+      angular.mock.inject(function($viewManager, $rootScope) {
         var view = $viewManager.create('irrelevant', {
+          reset: jasmine.createSpy('resetIrrelevant'),
           render: jasmine.createSpy('renderIrrelevant')
         });
         $viewManager.$update(function() {
           expect(view.render).not.toHaveBeenCalled();
           done();
         });
+
+        $rootScope.$apply();
       });
     });
 
@@ -139,15 +144,16 @@ describe('$viewManager', function() {
         return {
           name: 'blog.entries',
           templates: {
-            deferredTemplate: function($q) {
-              deferred = $q.defer();
+            deferredTemplate: function() {
               return deferred.promise;
             }
           }
         };
       };
 
-      angular.mock.inject(function($viewManager, $rootScope, $locale) {
+      angular.mock.inject(function($viewManager, $rootScope, $locale, $q) {
+        deferred = $q.defer();
+
         var view = $viewManager.create('deferredTemplate', {
           render: jasmine.createSpy('renderDeferredTemplate')
         });
@@ -163,33 +169,6 @@ describe('$viewManager', function() {
           $rootScope.$apply();
         });
 
-      });
-    });
-
-    it('Should ignore invalid templates', function(done) {
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: {
-            nullTemplate: null
-          }
-        };
-      };
-
-      angular.mock.inject(function($viewManager, $rootScope) {
-        var nullView = $viewManager.create('nullTemplate', {
-          render: jasmine.createSpy('renderNullTemplate')
-        });
-
-        $viewManager.$update(function() {
-          expect(nullView.render).not.toHaveBeenCalled();
-          done();
-        });
-
-        // Resolve
-        process.nextTick(function() {        
-          $rootScope.$apply();
-        });
       });
     });
 

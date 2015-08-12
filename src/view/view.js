@@ -7,23 +7,24 @@
  * @param  {Object} child   A data object used to extend abstract methods
  * @return {View}           An abstract view object
  */
-module.exports = function(id, child) {
+module.exports = function View(id, child) {
+
   // Instance
   var _self;
   _self = {
 
     /**
-     * Abstract render
+     * Abstract render method
      */
-    render: function() { },
+    render: function(template) { },
 
     /**
-     * Abstract reset
+     * Abstract reset method
      */
     reset: function() { },
 
     /**
-     * Abstract destroy
+     * Abstract destroy method
      */
     destroy: function() { }
 

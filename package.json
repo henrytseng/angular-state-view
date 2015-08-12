@@ -1,6 +1,6 @@
 {
   "name": "angular-state-view",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Provides nested view management with template support.",
   "main": "dist/state-view.js",
   "scripts": {
@@ -44,6 +44,6 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "angular-state-router": "^1.7.6"
+    "angular-state-router": "^2.0.0"
   }
 }
