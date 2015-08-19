@@ -35,7 +35,7 @@ Include the `state-view.min.js` script tag in your `.html`:
 	  </body>
 	</html>
 
-Add StateRouter as a dependency when your application module is instantiated
+In `app.js` add `angular-state-router` and `angular-state-view` as a dependency when your application module is instantiated.  
 
 	angular.module('myApp', ['angular-state-router', 'angular-state-view']);
 
@@ -90,29 +90,34 @@ Now in the view you can utilize the view `id` defined in the templates by using 
 		</div>
 	</body>
 
+Including nesting views to form template structures where the view `sideBar` might utilize the following code HTML partial `sidebar.html` as a template:
+
+	<div class="nav_sidebar">
+		<ul class="nav_main">
+			<li><a href="#">Products</a></li>
+			<li><a href="#">Catalogs</a></li>
+			<li><a href="#">Contact</a></li>
+		</ul>
+		<sview id="messagingCallout"></sview>
+	</div>
+
 
 
 Controllers
 -----------
 
-Controllers can be instantiated on a view $scope during rendering by specifying a `controllers` Object
-
+Controllers can be instantiated on a view `$scope` during rendering by specifying a `controllers` Object
 
 	    $stateProvider
 
 	      // Define states
 	      .state('products', {
-	        url: '/',
+	        url: '/products',
 	        templates: {
-
-	          sideBar: '/sidebar.html'
-
+	          productItem: '/item.html'
 	        },
-	        
 	        controllers: {
-	        
-	        	sideBar: 'SideBarController'
-	        
+	        	productItem: 'ProductItemController'
 	        }
 	      });
 
@@ -122,33 +127,53 @@ Controllers must use the same view `id`.
 
 
 
+Resolve
+-------
+
+States that include a resolve property will resolve all promises and expose data to controllers.  
+
+	myApp
+	  .config(function() {
+	      $stateProvider
+  	
+	        // Define states
+	        .state('products.items', {
+	          url: '/products/:item',
+	          resolve: {
+	          	currentProduct: function(ProductService) {
+		           return ProductService.get();
+	          	}
+	          },
+	          templates: {
+	            productItem: '/item.html'
+	          },
+	          controllers: {
+	          	productItem: 'ProductItemController'
+	          }
+	        });
+	
+	    });
+	  })
+	  
+`ProductService.get()` should return a promise so that you may access the resolved value of `currentProduct` via your controller as follows: 
+
+	  .controller(function(currentProduct, $scope) {
+	    $scope.product = currentProduct;
+	  });
+
+
+
 Events
 ------
 
-Events are emit from $state; where $state inherits from [events.EventEmitter](https://nodejs.org/api/events.html).  
+### $viewRender
 
-To listen to events 
-
-	$state.on('update:render', function() {
-		// ...
-	});
+This event is broadcasted when the view is rendered.  
 
 
+### $viewError
 
-Event: 'update:render'
----------------
-
-This event is emitted when the view is rendered.  
-
-
-
-Event: 'error'
---------------
-
-* `request` *Object* Requested data `{ name: 'nextState', params: {} }`
-
-This event is emitted whenever an error occurs.  
-
+This event is broadcasted when an error occurs during view rendering.  
 
 
 

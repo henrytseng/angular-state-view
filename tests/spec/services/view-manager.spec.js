@@ -1,23 +1,10 @@
 'use strict';
 
 describe('$viewManager', function() {
-  var _fakeApp;
-  var _stateRouterHelper = require('../../../node_modules/angular-state-router/tests/helpers/state-router.helper');
-  var process = require('../../../node_modules/angular-state-router/src/utils/process');
 
-  beforeEach(function() {
-    _fakeApp = angular.module('fakeApp', function() {});
-
-    // Load helpers
-    _stateRouterHelper.factory(_fakeApp).reset();
-  });
-
-  beforeEach(function() {
-    angular.mock.module('angular-state-view', 'fakeApp');
-  });
+  beforeEach(angular.mock.module('angular-state-view'));
 
   describe('#create', function() {
-
     it('Should require an id in order to create a view', function() {
       angular.mock.inject(function($viewManager) {
         expect(function() {
@@ -30,13 +17,23 @@ describe('$viewManager', function() {
 
     it('Should register view when created', function() {
       angular.mock.inject(function($viewManager) {
+        var original = {
+          type: 'bird'
+        };
+
         // Create
-        var view = $viewManager.create('myview', {});
+        var view = $viewManager.create('myview', {
+          albatros: original
+        });
         expect(view).toBeDefined();
 
+        // Stub abstract views
         expect(view.render).toBeDefined();
         expect(view.reset).toBeDefined();
         expect(view.destroy).toBeDefined();
+
+        // Override
+        expect(view.albatros).toBe(original);
 
         // Retrieve
         expect($viewManager.get('myview')).toBeDefined();
@@ -66,61 +63,69 @@ describe('$viewManager', function() {
   describe('#update', function() {
 
     it('Should continue without error when no templates exist', function(done) {
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: { }
-        };
-      };
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
+            templates: {
+              stringTemplate: '/lorem.html'
+            }
+          })
+          .init('blog.entries');
+      });
 
       angular.mock.inject(function($viewManager, $rootScope) {
         var view = $viewManager.create('irrelevant', {
           reset: jasmine.createSpy('resetIrrelevant'),
           render: jasmine.createSpy('renderIrrelevant')
         });
-        $viewManager.$update(function() {
-          expect(view.render).not.toHaveBeenCalled();
-          done();
-        });
 
-        $rootScope.$apply();
+        $viewManager.$update(function() { });
+
+        // Digest
+        $rootScope.$digest();
+
+        expect(view.render).not.toHaveBeenCalled();
+        done();
       });
     });
 
     it('Should accept String templates', function(done) {
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: {
-            stringTemplate: '/lorem.html'
-          }
-        };
-      };
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
+            templates: {
+              stringTemplate: '/lorem.html'
+            }
+          })
+          .init('blog.entries');
+      });
 
       angular.mock.inject(function($viewManager, $rootScope) {
         var view = $viewManager.create('stringTemplate', {
           render: jasmine.createSpy('renderStringTemplate')
         });
-        $viewManager.$update(function() {
-          expect(view.render).toHaveBeenCalledWith('<ng-include src="\'/lorem.html\'"></ng-include>');
-          done();
-        });
-        
-        $rootScope.$apply();
+        $viewManager.$update(function() { });
+
+        // Digest
+        $rootScope.$digest();
+
+        expect(view.render).toHaveBeenCalledWith('<ng-include src="\'/lorem.html\'"></ng-include>');
+        done();
       });
     });
 
     it('Should accept function templates and inject with $invoker', function(done) {
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: {
-            functionTemplate: function($locale) {
-              return 'Sed ut - '+$locale.id;
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
+            templates: {
+              functionTemplate: function($locale) {
+                return 'Sed ut - '+$locale.id;
+              }
             }
-          }
-        };
-      };
+          })
+          .init('blog.entries');
+      });
 
       angular.mock.inject(function($viewManager, $rootScope, $locale) {
         var view = $viewManager.create('functionTemplate', {
@@ -132,24 +137,23 @@ describe('$viewManager', function() {
         });
 
         // Resolve
-        process.nextTick(function() {        
-          $rootScope.$apply();
-        });
+        $rootScope.$apply();
       });
     });
 
     it('Should accept function templates and inject with $invoker and wait for promise', function(done) {
       var deferred;
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: {
-            deferredTemplate: function() {
-              return deferred.promise;
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
+            templates: {
+              deferredTemplate: function() {
+                return deferred.promise;
+              }
             }
-          }
-        };
-      };
+          })
+          .init('blog.entries');
+      });
 
       angular.mock.inject(function($viewManager, $rootScope, $locale, $q) {
         deferred = $q.defer();
@@ -163,24 +167,22 @@ describe('$viewManager', function() {
         });
 
         // Resolve
-        process.nextTick(function() {
+        $rootScope.$apply(function() {
           deferred.resolve('Dolor ipsum');
-
-          $rootScope.$apply();
         });
-
       });
     });
 
     it('Should ignore views without corresponding state.templates', function(done) {
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: {
-            presentTemplate: '/explicabo.html'
-          }
-        };
-      };
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
+            templates: {
+              presentTemplate: '/explicabo.html'
+            }
+          })
+          .init('blog.entries');
+      });
 
       angular.mock.inject(function($viewManager, $rootScope) {
         var presentView = $viewManager.create('presentTemplate', {
@@ -197,22 +199,21 @@ describe('$viewManager', function() {
         });
 
         // Resolve
-        process.nextTick(function() {        
-          $rootScope.$apply();
-        });
+        $rootScope.$apply();
       });
     });
 
     it('Should ignore state.templates without corresponding views', function(done) {
-      _stateRouterHelper.$service.current = function() {
-        return {
-          name: 'blog.entries',
-          templates: {
-            presentTemplate: '/explicabo.html',
-            missingTemplate: '/dicta.html'
-          }
-        };
-      };
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
+            templates: {
+              presentTemplate: '/explicabo.html',
+              missingTemplate: '/dicta.html'
+            }
+          })
+          .init('blog.entries');
+      });
 
       angular.mock.inject(function($viewManager, $rootScope) {
         var presentView = $viewManager.create('presentTemplate', {
@@ -225,16 +226,31 @@ describe('$viewManager', function() {
         });
 
         // Resolve
-        process.nextTick(function() {        
-          $rootScope.$apply();
-        });
+        $rootScope.$apply();
       });
     });
 
     it('Should reset last active views', function(done) {
-      _stateRouterHelper.$service.current = function() { return null; };
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
+            templates: {
+              myTemplate: '/explicabo.html'
+            }
+          })
+          .state('blog.catalog', {
+            templates: {
+              myTemplate: '/ut.html'
+            }
+          })
+          .state('blog', {
+            templates: {
+              irrelevantTemplate: '/sed.html'
+            }
+          });
+      });
 
-      angular.mock.inject(function($viewManager, $rootScope) {
+      angular.mock.inject(function($viewManager, $state, $rootScope) {
         var myView = $viewManager.create('myTemplate', {
           reset: jasmine.createSpy('resetMyTemplate'),
           render: jasmine.createSpy('renderMyTemplate')
@@ -244,39 +260,58 @@ describe('$viewManager', function() {
           render: jasmine.createSpy('renderIrrelevantTemplate')
         });
 
-        _stateRouterHelper.$service.current = function() {
-          return {
-            name: 'blog.entries',
+        $state.change('blog.entries');
+
+        $rootScope.$digest();
+
+        // First time
+        expect(myView.reset).not.toHaveBeenCalled();
+        expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
+        expect(irrelevantView.reset).not.toHaveBeenCalled();
+        expect(irrelevantView.render).not.toHaveBeenCalled();
+        
+        $state.change('blog.catalog');
+        $rootScope.$digest();
+
+        // Second time
+        expect(myView.reset).toHaveBeenCalled();
+        expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/ut.html\'"></ng-include>');
+        expect(irrelevantView.reset).not.toHaveBeenCalled();
+        expect(irrelevantView.render).not.toHaveBeenCalled();
+
+        done();
+      });
+    });
+
+    it('Should broadcast $viewRender event', function(done) {
+      angular.mock.module(function($stateProvider) {
+        $stateProvider
+          .state('blog.entries', {
             templates: {
-              myTemplate: '/explicabo.html'
+              otherTemplate: '/explicabo.html'
             }
-          };
-        };
-
-        $viewManager.$update(function() {
-          expect(myView.reset).not.toHaveBeenCalled();
-          expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
-          expect(irrelevantView.reset).not.toHaveBeenCalled();
-          expect(irrelevantView.render).not.toHaveBeenCalled();
-
-          $viewManager.$update(function() {
-            expect(myView.reset).toHaveBeenCalled();
-            expect(myView.render).toHaveBeenCalledWith('<ng-include src="\'/explicabo.html\'"></ng-include>');
-            expect(irrelevantView.reset).not.toHaveBeenCalled();
-            expect(irrelevantView.render).not.toHaveBeenCalled();
-            done();
           });
+      });
 
-          // Resolve
-          process.nextTick(function() {
-            $rootScope.$apply();
-          });
+      angular.mock.inject(function($viewManager, $rootScope, $state) {
+        var myView = $viewManager.create('myTemplate', {
+          reset: jasmine.createSpy('resetMyTemplate'),
+          render: jasmine.createSpy('renderMyTemplate')
         });
+        
+        var onViewRender = jasmine.createSpy('onViewRender');
+        
+        $rootScope.$on('$viewRender', onViewRender);
+
+        $state.change('blog.entries');
 
         // Resolve
-        process.nextTick(function() {        
-          $rootScope.$apply();
-        });
+        $rootScope.$digest();
+
+        expect($state.current().name).toBe('blog.entries');
+        expect(onViewRender).toHaveBeenCalled();
+
+        done();
       });
     });
 

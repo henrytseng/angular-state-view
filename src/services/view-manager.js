@@ -2,17 +2,15 @@
 
 /* global window:false */
 
-var EventEmitter = require('events').EventEmitter;
 var View = require('../view/view');
-var process = require('../../node_modules/angular-state-router/src/utils/process');
 
-module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
+module.exports = ['$rootScope', '$state', '$injector', '$q', function($rootScope, $state, $injector, $q) {
 
-  // Instance of EventEmitter
-  var _self = new EventEmitter();
+  // Instance
+  var _self = {};
 
   var _viewHash = {};
-  var _activeHash = {};
+  var _activeSet = {};
 
   /**
    * Reset active views
@@ -22,10 +20,12 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
   var _resetActive = function() {
     // Reset views
     var resetPromised = {};
-    angular.forEach(_activeHash, function(view, id) {
+    angular.forEach(_activeSet, function(view, id) {
       resetPromised[id] = $q.when(view.reset());
     });
-    _activeHash = {};
+
+    // Empty active set
+    _activeSet = {};
 
     return $q.all(resetPromised);
   };
@@ -87,26 +87,22 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
             var view = _viewHash[id];
             var controller = controllers[id];
             viewsPromised[id] = _renderView(id, view, template, controller);
-            _activeHash[id] = view;
+            _activeSet[id] = view;
           }
         });
 
-        $q.all(viewsPromised).then(function(views) {
-          process.nextTick(callback);
+        $q.all(viewsPromised).then(function() {
+          callback();
+        }, callback);
 
-        }, function(err) {
-          process.nextTick(angular.bind(null, callback, err));
-        });
-
-      }, function(err) {
-        process.nextTick(angular.bind(null, callback, err));
-      });
+      }, callback);
 
     // None
     } else {
-      process.nextTick(callback);
+      callback();
     }
   };
+  _self.$update = _update;
 
   /**
    * Unregister a view
@@ -182,21 +178,16 @@ module.exports = ['$state', '$injector', '$q', function($state, $injector, $q) {
     return _viewHash[id];
   };
 
-  /**
-   * Update
-   */
-  _self.$update = _update;
-
   // Register middleware layer
   $state.$use(function(request, next) {
     _update(function(err) {
       if(err) {
-        _self.emit('error:render', err);
-        return next(err);
+        $rootScope.$broadcast('$viewError', err);
+      } else {
+        $rootScope.$broadcast('$viewRender');
       }
 
-      _self.emit('update:render');
-      next();
+      next(err);
     });
   });
 
