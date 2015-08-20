@@ -101,6 +101,8 @@ describe('$viewManager', function() {
       });
 
       angular.mock.inject(function($viewManager, $rootScope) {
+        $rootScope.$digest();
+
         var view = $viewManager.create('stringTemplate', {
           render: jasmine.createSpy('renderStringTemplate')
         });
@@ -128,6 +130,8 @@ describe('$viewManager', function() {
       });
 
       angular.mock.inject(function($viewManager, $rootScope, $locale) {
+        $rootScope.$digest();
+
         var view = $viewManager.create('functionTemplate', {
           render: jasmine.createSpy('renderFunctionTemplate')
         });
@@ -136,8 +140,7 @@ describe('$viewManager', function() {
           done();
         });
 
-        // Resolve
-        $rootScope.$apply();
+        $rootScope.$digest();
       });
     });
 
@@ -156,6 +159,8 @@ describe('$viewManager', function() {
       });
 
       angular.mock.inject(function($viewManager, $rootScope, $locale, $q) {
+        $rootScope.$digest();
+
         deferred = $q.defer();
 
         var view = $viewManager.create('deferredTemplate', {
@@ -185,6 +190,8 @@ describe('$viewManager', function() {
       });
 
       angular.mock.inject(function($viewManager, $rootScope) {
+        $rootScope.$digest();
+
         var presentView = $viewManager.create('presentTemplate', {
           render: jasmine.createSpy('renderPresentTemplate')
         });
@@ -198,8 +205,7 @@ describe('$viewManager', function() {
           done();
         });
 
-        // Resolve
-        $rootScope.$apply();
+        $rootScope.$digest();
       });
     });
 
@@ -216,6 +222,8 @@ describe('$viewManager', function() {
       });
 
       angular.mock.inject(function($viewManager, $rootScope) {
+        $rootScope.$digest();
+
         var presentView = $viewManager.create('presentTemplate', {
           render: jasmine.createSpy('renderPresentTemplate')
         });
@@ -225,8 +233,7 @@ describe('$viewManager', function() {
           done();
         });
 
-        // Resolve
-        $rootScope.$apply();
+        $rootScope.$digest();
       });
     });
 
@@ -251,6 +258,8 @@ describe('$viewManager', function() {
       });
 
       angular.mock.inject(function($viewManager, $state, $rootScope) {
+        $rootScope.$digest();
+
         var myView = $viewManager.create('myTemplate', {
           reset: jasmine.createSpy('resetMyTemplate'),
           render: jasmine.createSpy('renderMyTemplate')
@@ -294,6 +303,8 @@ describe('$viewManager', function() {
       });
 
       angular.mock.inject(function($viewManager, $rootScope, $state) {
+        $rootScope.$digest();
+        
         var myView = $viewManager.create('myTemplate', {
           reset: jasmine.createSpy('resetMyTemplate'),
           render: jasmine.createSpy('renderMyTemplate')
