@@ -108,6 +108,8 @@ Controllers
 
 Controllers can be instantiated on a view `$scope` during rendering by specifying a `controllers` Object
 
+	angular.module('myApp')
+	  .controller('ProductController', function($scope, $state) {
 	    $stateProvider
 
 	      // Define states
@@ -132,7 +134,7 @@ Resolve
 
 States that include a resolve property will resolve all promises and expose data to controllers.  
 
-	myApp
+	angular.module('myApp')
 	  .config(function() {
 	      $stateProvider
   	
@@ -157,6 +159,7 @@ States that include a resolve property will resolve all promises and expose data
 	  
 `ProductService.get()` should return a promise so that you may access the resolved value of `currentProduct` via your controller as follows: 
 
+	angular.module('myApp')
 	  .controller(function(currentProduct, $scope) {
 	    $scope.product = currentProduct;
 	  });
@@ -165,6 +168,8 @@ States that include a resolve property will resolve all promises and expose data
 
 Events
 ------
+
+Events are broadcast on the `$rootScope`.  
 
 ### $viewRender
 
