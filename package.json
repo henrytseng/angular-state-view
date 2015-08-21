@@ -2,6 +2,18 @@
   "name": "angular-state-view",
   "version": "3.0.3",
   "description": "Provides nested view management with template support.",
+  "keywords": [
+    "StateRouter",
+    "angular",
+    "AngularJS",
+    "state",
+    "state machine",
+    "fsm",
+    "finite state machine",
+    "asynchronous",
+    "nested",
+    "view"
+  ],
   "main": "dist/state-view.js",
   "scripts": {
     "watch": "gulp watch",
