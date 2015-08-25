@@ -189,7 +189,7 @@ module.exports = ['$rootScope', '$state', '$injector', '$q', function($rootScope
 
       next(err);
     });
-  });
+  }, -1);
 
   return _self;
 }];
