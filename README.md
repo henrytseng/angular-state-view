@@ -27,7 +27,7 @@ Include the `state-view.min.js` script tag in your `.html`:
 	  <head>
 	    <script src="/node_modules/angular/angular.min.js"></script>
 	    <script src="/node_modules/angular-state-router/dist/state-router.min.js"></script>
-	    <script src="/node_modules/angular-state-router/dist/state-view.min.js"></script>
+	    <script src="/node_modules/angular-state-view/dist/state-view.min.js"></script>
 	    <script src="/js/app.js"></script>
 	  </head>
 	  <body>
@@ -41,7 +41,7 @@ In `app.js` add `angular-state-router` and `angular-state-view` as a dependency 
 
 During the configuration of StateRouter utilize `templates` to associate a view with a rendering an HTML partial
 
-	angular.module('myApp', ['angular-state-router'])
+	angular.module('myApp', ['angular-state-router', 'angular-state-view'])
 	  .config(function($stateProvider) {
 
 	    $stateProvider
@@ -179,6 +179,55 @@ This event is broadcasted when the view is rendered.
 ### $viewError
 
 This event is broadcasted when an error occurs during view rendering.  
+
+
+
+API Directives
+--------------
+
+### sview
+
+* id {String} A unque identifier associated with a `template`
+
+A view tag where the contents are dynamically replaced as states defined `templates`.
+
+##### Example
+
+States having `templates.layout` defined will insert and compile relevant HTML partials.  
+
+	<sview id="layout"></sview>
+
+Where the state definition is either a HTML partial:
+
+	$stateProvider.state('my.state', {
+		templates: {
+         layout: '/single-col.html',
+		}
+	});
+
+Or function injection template
+
+	$stateProvider.state('my.state', {
+		templates: {
+         layout: function($templateCache, $greetingService) {
+	            return $templateCache.get('greeting_' + $greetingService.message() + '.html');
+		}
+	});
+
+Or promised template
+
+	$stateProvider.state('my.state', {
+	  templates: {
+       layout: function($q, $timeout) {
+         var deferred = $q.defer();
+
+         $timeout(function() {
+           deferred.resolve('Dolor ipsum');
+         }, 3000);
+         
+         return deferred.promise;
+       }
+	});
 
 
 
