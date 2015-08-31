@@ -250,7 +250,7 @@ describe('$viewManager', function() {
               myTemplate: '/ut.html'
             }
           })
-          .state('blog', {
+          .state('other', {
             templates: {
               irrelevantTemplate: '/sed.html'
             }
