@@ -12,6 +12,7 @@
     "finite state machine",
     "asynchronous",
     "nested",
+    "templates",
     "view"
   ],
   "main": "src/index.js",
